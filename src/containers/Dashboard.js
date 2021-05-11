@@ -67,10 +67,18 @@ export const getStatus = (index) => {
 }
 
 export default class {
+
   constructor({ document, onNavigate, firestore, bills, localStorage }) {
     this.document = document
     this.onNavigate = onNavigate
     this.firestore = firestore
+
+    this.tabsState = {
+      isOpen1: false,
+      isOpen2: false,
+      isOpen3: false,
+    };
+
     $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
     $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
@@ -86,6 +94,7 @@ export default class {
   }
 
   handleEditTicket(e, bill, bills) {
+
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0
     if (this.id === undefined || this.id !== bill.id) this.id = bill.id
     if (this.counter % 2 === 0) {
@@ -95,7 +104,7 @@ export default class {
       $(`#open-bill${bill.id}`).css({ background: '#2A2B35' })
       $('.dashboard-right-container div').html(DashboardFormUI(bill))
       $('.vertical-navbar').css({ height: '150vh' })
-      this.counter ++
+      this.counter++
     } else {
       $(`#open-bill${bill.id}`).css({ background: '#0D5AE5' })
 
@@ -103,7 +112,7 @@ export default class {
         <div id="big-billed-icon"> ${BigBilledIcon} </div>
       `)
       $('.vertical-navbar').css({ height: '120vh' })
-      this.counter ++
+      this.counter++
     }
     $('#icon-eye-d').click(this.handleClickIconEye)
     $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
@@ -131,23 +140,36 @@ export default class {
   }
 
   handleShowTickets(e, bills, index) {
-    if (this.counter === undefined || this.index !== index) this.counter = 0
+
     if (this.index === undefined || this.index !== index) this.index = index
-    if (this.counter % 2 === 0) {
+
+    if (!this.tabsState[`isOpen${index}`]) {
+      console.log("expanse")
+      console.log(index)
+      //console.log(this.tabsState)
+      //
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
       $(`#status-bills-container${this.index}`)
         .html(cards(filteredBills(bills, getStatus(this.index))))
-      this.counter ++
-    } else {
+      this.tabsState[`isOpen${index}`] = true;
+
+    } else if (this.tabsState[`isOpen${index}`]){
+      console.log("collapse")
+      console.log(index)
+
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
       $(`#status-bills-container${this.index}`)
         .html("")
-      this.counter ++
+      this.tabsState[`isOpen${index}`] = false;
+
     }
 
     bills.forEach(bill => {
+      $(`#open-bill${bill.id}`).off('click')
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
     })
+
+
 
     return bills
 
