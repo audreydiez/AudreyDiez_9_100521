@@ -17,36 +17,59 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    this.firestore
-      .storage
-      .ref(`justificatifs/${fileName}`)
-      .put(file)
-      .then(snapshot => snapshot.ref.getDownloadURL())
-      .then(url => {
-        this.fileUrl = url
-        this.fileName = fileName
-      })
+
+    const allowedExtensions = ['jpg','jpeg','png']
+    const fileExtension = file.name.split(".").pop()
+
+    if(allowedExtensions.includes(fileExtension)){
+      document.getElementById("error-filetype").classList.add("hide")
+      const filePath = e.target.value.split(/\\/g)
+      const fileName = filePath[filePath.length-1]
+      this.firestore
+          .storage
+          .ref(`justificatifs/${fileName}`)
+          .put(file)
+          .then(snapshot => snapshot.ref.getDownloadURL())
+          .then(url => {
+            this.fileUrl = url
+            this.fileName = fileName
+          })
+    }
+    else{
+      document.getElementById("error-filetype").classList.remove("hide")
+      this.document.querySelector(`input[data-testid="file"]`).value = null
+    }
+
+
   }
   handleSubmit = e => {
     e.preventDefault()
     const email = JSON.parse(localStorage.getItem("user")).email
-    const bill = {
-      email,
-      type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
-      amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-      date:  e.target.querySelector(`input[data-testid="datepicker"]`).value,
-      vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-      pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
-      commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
-      fileUrl: this.fileUrl,
-      fileName: this.fileName,
-      status: 'pending'
+
+    if (e.target.querySelector(`input[data-testid="expense-name"]`).value.length > 5){
+      document.getElementById("error-expensename").classList.add("hide")
+
+      const bill = {
+        email,
+        type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
+        name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
+        amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
+        date:  e.target.querySelector(`input[data-testid="datepicker"]`).value,
+        vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+        pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
+        commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
+        fileUrl: this.fileUrl,
+        fileName: this.fileName,
+        status: 'pending'
+      }
+      this.createBill(bill)
+      this.onNavigate(ROUTES_PATH['Bills'])
+
     }
-    this.createBill(bill)
-    this.onNavigate(ROUTES_PATH['Bills'])
+    else{
+      document.getElementById("error-expensename").classList.remove("hide")
+    }
+
   }
 
   // not need to cover this function by tests
