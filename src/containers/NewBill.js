@@ -17,17 +17,29 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    this.firestore
-      .storage
-      .ref(`justificatifs/${fileName}`)
-      .put(file)
-      .then(snapshot => snapshot.ref.getDownloadURL())
-      .then(url => {
-        this.fileUrl = url
-        this.fileName = fileName
-      })
+
+    const allowedExtensions = ['jpg','jpeg','png']
+    const fileExtension = file.name.split(".").pop()
+
+    if(allowedExtensions.includes(fileExtension)){
+      const filePath = e.target.value.split(/\\/g)
+      const fileName = filePath[filePath.length-1]
+      this.firestore
+          .storage
+          .ref(`justificatifs/${fileName}`)
+          .put(file)
+          .then(snapshot => snapshot.ref.getDownloadURL())
+          .then(url => {
+            this.fileUrl = url
+            this.fileName = fileName
+          })
+    }
+    else{
+      document.getElementById("error-filetype").classList.remove("hide")
+      this.document.querySelector(`input[data-testid="file"]`).value = null
+    }
+
+
   }
   handleSubmit = e => {
     e.preventDefault()
