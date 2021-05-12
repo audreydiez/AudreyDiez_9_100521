@@ -20,12 +20,13 @@ const row = (bill) => {
   }
 
 const rows = (data) => {
-
-    const dataSorted = data.sort(function(a, b) {
-        let dateA = new Date(a.date), dateB = new Date(b.date);
-        return dateB - dateA;
-    });
-
+    let dataSorted = [];
+    if (data){
+        dataSorted = data.sort(function(a, b) {
+            let dateA = new Date(a.date), dateB = new Date(b.date);
+            return dateB - dateA;
+        });
+    }
   return (data && data.length) ? dataSorted.map(bill => row(bill)).join("") : ""
 }
 
