@@ -4,9 +4,13 @@ import Logout from "./Logout.js"
 
 export default class NewBill {
   constructor({ document, onNavigate, firestore, localStorage }) {
+
     this.document = document
     this.onNavigate = onNavigate
     this.firestore = firestore
+    console.log(this.document)
+    console.log(this.onNavigate)
+    console.log(this.firestore)
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
@@ -15,9 +19,9 @@ export default class NewBill {
     this.fileName = null
     new Logout({ document, localStorage, onNavigate })
   }
+
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-
     const allowedExtensions = ['jpg','jpeg','png']
     const fileExtension = file.name.split(".").pop()
 
