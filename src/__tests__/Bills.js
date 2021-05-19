@@ -8,6 +8,9 @@ import firestore from "../app/Firestore";
 import {localStorageMock} from "../__mocks__/localStorage";
 import VerticalLayout from "../views/VerticalLayout";
 import Firestore from "../app/Firestore";
+import DashboardFormUI from "../views/DashboardFormUI";
+import Dashboard from "../containers/Dashboard";
+import userEvent from "@testing-library/user-event";
 
 const data = []
 const loading = false
@@ -19,6 +22,7 @@ describe("Given I am connected as an employee", () => {
 
       jest.mock("../app/Firestore");
       Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() });
+
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
@@ -37,9 +41,7 @@ describe("Given I am connected as an employee", () => {
       document.body.innerHTML = `<div id="root"></div>`;
       Router()
 
-      expect(
-          screen.getByTestId("icon-window").classList.contains("active-icon")
-      ).toBeTruthy()
+      expect(screen.getByTestId("icon-window").classList.contains("active-icon")).toBeTruthy()
 
 
     })
@@ -86,6 +88,48 @@ describe("Given I am connected as an employee", () => {
 
     })
 
+  })
+  describe("When I click on the eye icon", () => {
+    test("A modal should open", () => {
+
+
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+      window.localStorage.setItem("user",JSON.stringify({
+            type: "Employee",
+          })
+      );
+
+      const html = BillsUI({ data: bills });
+      document.body.innerHTML = html;
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const firestore = null;
+      const allBills = new Bills({
+        document,
+        onNavigate,
+        firestore,
+        localStorage: window.localStorage,
+      });
+
+      $.fn.modal = jest.fn();
+
+      const eye = screen.getAllByTestId("icon-eye")[0];
+      const handleClickIconEye = jest.fn(() =>
+          allBills.handleClickIconEye(eye)
+      );
+      eye.addEventListener("click", handleClickIconEye);
+      fireEvent.click(eye);
+      expect(handleClickIconEye).toHaveBeenCalled();
+      const modale = document.getElementById("modaleFile");
+      expect(modale).toBeTruthy();
+
+
+
+    })
   })
 })
 
