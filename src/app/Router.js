@@ -49,7 +49,6 @@ export default () => {
     } else if (pathname === ROUTES_PATH['NewBill']) {
       rootDiv.innerHTML = ROUTES({ pathname, loading: true })
       new NewBill({ document, onNavigate, firestore, localStorage })
-      console.log(new NewBill({ document, onNavigate, firestore, localStorage }))
       const divIcon1 = document.getElementById('layout-icon1')
       const divIcon2 = document.getElementById('layout-icon2')
       divIcon1.classList.remove('active-icon')
@@ -73,7 +72,6 @@ export default () => {
       rootDiv.innerHTML = ROUTES({ pathname: window.location.pathname })
     }
     else if (user) {
-      console.log(user)
       onNavigate(PREVIOUS_LOCATION)
     }
   }
