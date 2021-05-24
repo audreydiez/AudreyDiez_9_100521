@@ -1,7 +1,6 @@
 import {fireEvent, screen} from "@testing-library/dom"
-import {localStorageMock} from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase";
-import {setSessionsStorage} from "../../setup-jest";
+import {setSessionStorage} from "../../setup-jest";
 
 import Router from "../app/Router.js"
 import {ROUTES, ROUTES_PATH} from "../constants/routes";
@@ -24,7 +23,7 @@ describe("Given I am connected as an employee", () => {
       Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() });
 
       // Session storage - Employee
-      setSessionsStorage('Employee')
+      setSessionStorage('Employee')
 
       // HTML DOM creation - DIV
       Object.defineProperty(window, "location", { value: { hash: pathname } });
@@ -64,7 +63,7 @@ describe("Given I am connected as an employee", () => {
       }
 
       // Session storage - Employee
-      setSessionsStorage('Employee')
+      setSessionStorage('Employee')
 
       // Init bills
       const bills = new Bills({ document, onNavigate, Firestore, localStorage  })
@@ -85,7 +84,7 @@ describe("Given I am connected as an employee", () => {
 
 
       // Session storage - Employee
-      setSessionsStorage('Employee')
+      setSessionStorage('Employee')
 
       // UI Construction
       const html = BillsUI({ data: bills });
