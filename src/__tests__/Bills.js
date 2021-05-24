@@ -33,6 +33,7 @@ describe("Given I am connected as an employee", () => {
       // Router init to get actives CSS classes
       Router()
 
+      expect(screen.getByTestId("icon-window")).toBeTruthy()
       expect(screen.getByTestId("icon-window").classList.contains("active-icon")).toBeTruthy()
 
 
