@@ -112,6 +112,7 @@ describe("Given I am connected as an employee", () => {
       // Get button eye in DOM
       const eye = screen.getAllByTestId("icon-eye")[0];
 
+
       // Mock function handleClickIconEye
       const handleClickIconEye = jest.fn(() =>
           allBills.handleClickIconEye(eye)

@@ -19,7 +19,7 @@ export default class NewBill {
 
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    console.log(file)
+    //console.log(file)
     const allowedExtensions = ['jpg','jpeg','png']
     const fileExtension = file.name.split(".").pop()
 
