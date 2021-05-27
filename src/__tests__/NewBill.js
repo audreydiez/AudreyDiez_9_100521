@@ -163,7 +163,6 @@ describe("Given I am connected as an employee", () => {
         }
       })
 
-
       expect(handleChangeFile).toBeCalled();
       expect(inputFile.files[0].name).toBe("image.png");
       expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
