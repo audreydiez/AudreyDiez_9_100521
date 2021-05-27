@@ -1,3 +1,4 @@
+
 import {screen} from "@testing-library/dom"
 import firebase from "../__mocks__/firebase";
 import {setSessionStorage} from "../../setup-jest";
@@ -69,6 +70,7 @@ describe("Given I am connected as an employee", () => {
         document.body.innerHTML = ROUTES({ pathname });
       };
 
+
       // init Bills for icon eye display
       const newBills = new Bills({
         document,
@@ -76,6 +78,7 @@ describe("Given I am connected as an employee", () => {
         Firestore,
         localStorage: window.localStorage,
       });
+
 
       // Mock handleClickNewBill
       const handleClickNewBill = jest.fn(newBills.handleClickNewBill);

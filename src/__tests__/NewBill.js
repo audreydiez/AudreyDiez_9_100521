@@ -1,4 +1,3 @@
-
 import {fireEvent, screen} from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
@@ -36,6 +35,7 @@ describe("Given I am connected as an employee", () => {
 
       // Mock - parameters for bdd Firebase & data fetching
       Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() })
+
 
 
       // HTML DOM creation - DIV
@@ -88,15 +88,15 @@ describe("Given I am connected as an employee", () => {
       expect(inputFile.files[0].name).toBe("image.exe");
       expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
 
-      // Ne marche pas
       setTimeout(() => {
         expect(screen.getByText("Le justificatif doit être au format")).toBeTruthy()
       }, 2000);
 
     })
+
   })
 
-  describe("When I am on new bill page and I submit the completed form", () => {
+    describe("When I am on new bill page and I submit the completed form", () => {
     test("Then I should navigate to bills page", () => {
 
       // Init onNavigate
@@ -218,9 +218,6 @@ describe("Given I am connected as an employee", () => {
 
 
 })
-
-
-
 
 
 
