@@ -1,3 +1,4 @@
+
 import {fireEvent, screen} from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
@@ -5,13 +6,14 @@ import Router from "../app/Router";
 import {bills} from "../fixtures/bills";
 import {ROUTES, ROUTES_PATH} from "../constants/routes";
 
-import firebase from "../__mocks__/firebase";
+
 import {setSessionStorage, firestore} from "../../setup-jest";
-import {localStorageMock} from "../__mocks__/localStorage";
-import Bills from "../containers/Bills";
-import Firestore from "../app/Firestore";
 import userEvent from "@testing-library/user-event";
-firebase.firestore = firestore;
+import Firebase from "../__mocks__/firebase";
+import Firestore from "../app/Firestore";
+import DashboardUI from "../views/DashboardUI";
+import firebase from "../__mocks__/firebase";
+//firebase.firestore = firestore;
 
 
 
@@ -33,7 +35,7 @@ describe("Given I am connected as an employee", () => {
       const pathname = ROUTES_PATH['NewBill']
 
       // Mock - parameters for bdd Firebase & data fetching
-      firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() })
+      Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() })
 
 
       // HTML DOM creation - DIV
@@ -86,6 +88,7 @@ describe("Given I am connected as an employee", () => {
       expect(inputFile.files[0].name).toBe("image.exe");
       expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
 
+      // Ne marche pas
       setTimeout(() => {
         expect(screen.getByText("Le justificatif doit être au format")).toBeTruthy()
       }, 2000);
@@ -172,9 +175,49 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
+  // Copie dashboard
+  describe("When I create a new bill", () => {
+    test("Then the API get one more bill", async () => {
+
+      const postSpy = jest.spyOn(Firebase, "post")
+
+      const newBill = {
+        id: "QcCK3SzECmaZAGRrHjaC",
+        status: "refused",
+        pct: 20,
+        amount: 200,
+        email: "a@a",
+        name: "test2",
+        vat: "40",
+        fileName: "preview-facture-free-201801-pdf-1.jpg",
+        date: "2002-02-02",
+        commentAdmin: "pas la bonne facture",
+        commentary: "test2",
+        type: "Restaurants et bars",
+        fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
+      }
+
+      const bills = await Firebase.post(newBill)
+
+      expect(postSpy).toHaveBeenCalledTimes(1)
+      expect(bills.data.length).toBe(5)
+    })
+
+
+    test("POST a newBill and fails with 500 message error", async () => {
+      Firebase.post.mockImplementationOnce(() =>
+          Promise.reject(new Error("Erreur 500"))
+      )
+      const html = NewBillUI({ error: "Erreur 500" })
+      document.body.innerHTML = html
+      const message = await screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
+    })
+
+  })
+
+
 })
-
-
 
 
 
