@@ -1,4 +1,5 @@
-import {fireEvent, screen} from "@testing-library/dom"
+
+import {screen} from "@testing-library/dom"
 import firebase from "../__mocks__/firebase";
 import {setSessionStorage} from "../../setup-jest";
 
@@ -57,25 +58,40 @@ describe("Given I am connected as an employee", () => {
   describe("When I click on the button 'Nouvelle note de frais'", () => {
     test("Then I should navigate to bill/new", () => {
 
-      // Init onNavigate
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-
       // Session storage - Employee
       setSessionStorage('Employee')
 
-      // Init bills
-      const bills = new Bills({ document, onNavigate, Firestore, localStorage  })
+      // UI Construction
+      const html = BillsUI({ data: bills })
+      document.body.innerHTML = html
 
-      // Mock - onClick button event
-      userEvent.click(screen.getAllByTestId("btn-new-bill")[0], jest.fn(() => bills.handleClickNewBill))
+      // Init onNavigate
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
 
-      // Promise reception
-      setTimeout(() => {
-        expect(handleClickNewBill).toBeCalled()
-        expect(screen.getAllByAltText("Envoyer une note de frais")).toBeTruthy()
-      }, 2000);
+
+      // init Bills for icon eye display
+      const newBills = new Bills({
+        document,
+        onNavigate,
+        Firestore,
+        localStorage: window.localStorage,
+      });
+
+
+      // Mock handleClickNewBill
+      const handleClickNewBill = jest.fn(newBills.handleClickNewBill);
+
+      // Get button eye in DOM
+      const newBillButton = screen.getByTestId("btn-new-bill");
+
+      // Add event and fire
+      newBillButton.addEventListener("click", handleClickNewBill);
+      userEvent.click(newBillButton);
+
+      expect(handleClickNewBill).toHaveBeenCalled();
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
     })
 
   })
