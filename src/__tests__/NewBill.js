@@ -1,18 +1,27 @@
-import { screen } from "@testing-library/dom"
+import {fireEvent, screen} from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
-import Firestore from "../app/Firestore";
 import Router from "../app/Router";
 import {bills} from "../fixtures/bills";
-import {localStorageMock} from "../__mocks__/localStorage";
 import {ROUTES, ROUTES_PATH} from "../constants/routes";
-import BillsUI from "../views/BillsUI";
+
+import firebase from "../__mocks__/firebase";
+import {setSessionStorage, firestore} from "../../setup-jest";
+import {localStorageMock} from "../__mocks__/localStorage";
 import Bills from "../containers/Bills";
-import firestore from "../app/Firestore";
+import Firestore from "../app/Firestore";
+import userEvent from "@testing-library/user-event";
+firebase.firestore = firestore;
+
+
 
 const data = []
 const loading = false
 const error = null
+
+// Session storage - Employee
+setSessionStorage('Employee')
+
 
 
 describe("Given I am connected as an employee", () => {
@@ -20,61 +29,149 @@ describe("Given I am connected as an employee", () => {
     test("Then letter icon in vertical layout should be highlighted", () => {
 
 
-      jest.mock("../app/Firestore");
-      Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() });
-
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
-
+      // Routing variable
       const pathname = ROUTES_PATH['NewBill']
-      const html = ROUTES({
-        pathname,
-        data,
-        loading,
-        error
-      })
-      document.body.innerHTML = html
 
-      Object.defineProperty(window, "location", { value: { hash: pathname } });
+      // Mock - parameters for bdd Firebase & data fetching
+      firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() })
+
+
+      // HTML DOM creation - DIV
+      Object.defineProperty(window, "location", { value: { hash: pathname } })
       document.body.innerHTML = `<div id="root"></div>`;
+
+      // Router init to get actives CSS classes
       Router()
 
+      expect(screen.getByTestId("icon-mail")).toBeTruthy()
       expect(screen.getByTestId("icon-mail").classList.contains("active-icon")).toBeTruthy()
+
     })
-
   })
-  describe("When I choose a file to upload who is not a png, jpg or jpeg", () => {
-    test("Then the file input should stay empty and an error message should display", () => {
 
-      // Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      // window.localStorage.setItem('user', JSON.stringify({
-      //   type: 'Employee'
-      // }))
-      //
-      // const pathname = ROUTES_PATH['NewBill']
-      // const html = ROUTES({
-      //   pathname,
-      //   data,
-      //   loading,
-      //   error
-      // })
-      // document.body.innerHTML = html
-      // console.log(html)
+  describe("When I choose an wrong image to upload ", () => {
+    test("Then the error message should be display", () => {
 
-      const html = NewBillUI()
+      // Init onNavigate
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      // UI Construction
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      // Init newBill
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        firestore,
+        localStorage: window.localStorage,
+      });
+
+      // Mock function handleChangeFile
+      const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
+
+      // Add Event and fire
+      const inputFile = screen.getByTestId("file");
+      inputFile.addEventListener("change", handleChangeFile);
+
+      fireEvent.change(inputFile, {
+        target: {
+          files: [new File(["image.exe"], "image.exe", { type: "image/exe" })],
+        }
+      })
+
+      expect(handleChangeFile).toBeCalled();
+      expect(inputFile.files[0].name).toBe("image.exe");
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
+
+      setTimeout(() => {
+        expect(screen.getByText("Le justificatif doit être au format")).toBeTruthy()
+      }, 2000);
+
+    })
+  })
+
+  describe("When I am on new bill page and I submit the completed form", () => {
+    test("Then I should navigate to bills page", () => {
+
+      // Init onNavigate
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      // UI Construction
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      // Init newBill
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        firestore,
+        localStorage: window.localStorage,
+      });
+
+      // Mock function handleSubmit
+      const handleSubmit = jest.fn(newBill.handleSubmit)
+
+      // Add Event and fire
+      screen.getByTestId("form-new-bill").addEventListener("click", handleSubmit);
+      userEvent.click(screen.getByTestId("form-new-bill"), handleSubmit)
+
+      // Promise reception
+      setTimeout(() => {
+        expect(handleSubmit).toBeCalled()
+        expect(screen.getAllByAltText("Envoyer une note de frais")).toBeTruthy()
+      }, 2000);
+    })
+  })
+
+  describe("When I choose an image to upload ", () => {
+    test("Then the file input should get the file name", () => {
+
+      // Init onNavigate
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      // UI Construction
+      const html = NewBillUI();
       document.body.innerHTML = html
 
-      const newBills = new NewBill({ document, onNavigate, firestore, localStorage  })
+      // Init newBill
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        firestore,
+        localStorage: window.localStorage,
+      });
 
-      const handleChangeFile = jest.fn(newBills.handleChangeFile);
+      // Mock function handleChangeFile
+      const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
 
-      $("[data-testid='btn-new-bill']").click(handleChangeFile)
+      // Add Event and fire
+      const inputFile = screen.getByTestId("file");
+      inputFile.addEventListener("change", handleChangeFile);
+      //console.log(html)
+
+      // MARCHE PAS
+      fireEvent.change(inputFile, {
+        target: {
+          files: [new File(["image.png"], "image.png", { type: "image/png" })],
+        }
+      })
+
+      expect(handleChangeFile).toBeCalled();
+      expect(inputFile.files[0].name).toBe("image.png");
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
+      expect(html.includes("<div class=\"hide\" id=\"error-filetype\" data-testid=\"error-file\">")).toBeTruthy()
+
 
     })
-
   })
+
 })
 
 
@@ -84,6 +181,3 @@ describe("Given I am connected as an employee", () => {
 
 
 
-// error file type
-// submition form
-// creation bill

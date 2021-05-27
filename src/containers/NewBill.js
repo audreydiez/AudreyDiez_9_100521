@@ -19,7 +19,7 @@ export default class NewBill {
 
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    console.log(file)
+    //console.log(file)
     const allowedExtensions = ['jpg','jpeg','png']
     const fileExtension = file.name.split(".").pop()
 
@@ -27,15 +27,18 @@ export default class NewBill {
       document.getElementById("error-filetype").classList.add("hide")
       const filePath = e.target.value.split(/\\/g)
       const fileName = filePath[filePath.length-1]
-      this.firestore
-          .storage
-          .ref(`justificatifs/${fileName}`)
-          .put(file)
-          .then(snapshot => snapshot.ref.getDownloadURL())
-          .then(url => {
-            this.fileUrl = url
-            this.fileName = fileName
-          })
+
+
+        this.firestore
+            .storage
+            .ref(`justificatifs/${fileName}`)
+            .put(file)
+            .then(snapshot => snapshot.ref.getDownloadURL())
+            .then(url => {
+              this.fileUrl = url
+              this.fileName = fileName
+            })
+
     }
     else{
       document.getElementById("error-filetype").classList.remove("hide")
