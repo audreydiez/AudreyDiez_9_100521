@@ -53,8 +53,7 @@ describe("Given I am connected as an employee", () => {
 
       expect(dates).toEqual(datesSorted)
     })
-  })
-
+})
   describe("When I click on the button 'Nouvelle note de frais'", () => {
     test("Then I should navigate to bill/new", () => {
 
@@ -143,7 +142,7 @@ describe("Given I am connected as an employee", () => {
       expect(modale).toBeTruthy();
 
     })
-  })
+})
 
   // Integration tests GET
   describe("When I navigate to Bills UI", () => {
@@ -172,6 +171,7 @@ describe("Given I am connected as an employee", () => {
       expect(message).toBeTruthy()
     })
   })
+
 })
 
 
