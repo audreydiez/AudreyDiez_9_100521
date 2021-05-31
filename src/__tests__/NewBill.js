@@ -74,6 +74,7 @@ describe("Given I am connected as an employee", () => {
       // Mock function handleChangeFile
       const handleChangeFile = jest.fn(() => newBill.handleChangeFile)
 
+
       // Add Event and fire
       const inputFile = screen.getByTestId("file");
       inputFile.addEventListener("change", handleChangeFile);
@@ -89,6 +90,7 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
 
       setTimeout(() => {
+          console.log(screen)
         expect(screen.getByText("Le justificatif doit être au format")).toBeTruthy()
       }, 2000);
 
@@ -139,6 +141,7 @@ describe("Given I am connected as an employee", () => {
         document.body.innerHTML = ROUTES({ pathname });
       };
 
+
       // UI Construction
       const html = NewBillUI();
       document.body.innerHTML = html
@@ -147,7 +150,7 @@ describe("Given I am connected as an employee", () => {
       const newBill = new NewBill({
         document,
         onNavigate,
-        firestore,
+        firestore : null,
         localStorage: window.localStorage,
       });
 
@@ -197,13 +200,16 @@ describe("Given I am connected as an employee", () => {
         fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
       }
 
+      //mock handlesubmit
+      // expect havebenncalled
+
       const bills = await Firebase.post(newBill)
 
       expect(postSpy).toHaveBeenCalledTimes(1)
       expect(bills.data.length).toBe(5)
     })
 
-
+// moyen
     test("POST a newBill and fails with 500 message error", async () => {
       Firebase.post.mockImplementationOnce(() =>
           Promise.reject(new Error("Erreur 500"))
