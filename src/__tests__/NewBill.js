@@ -4,6 +4,7 @@ import NewBill from "../containers/NewBill.js"
 import Router from "../app/Router";
 import {bills} from "../fixtures/bills";
 import {ROUTES, ROUTES_PATH} from "../constants/routes";
+import BillsUI from '../views/BillsUI.js';
 
 
 import {setSessionStorage, firestore} from "../../setup-jest";
@@ -178,49 +179,55 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
-  // Copie dashboard
-  describe("When I create a new bill", () => {
-    test("Then the API get one more bill", async () => {
 
-      const postSpy = jest.spyOn(Firebase, "post")
+    describe('When I am on NewBill Page and submit the form', () => {
+        test('Then it should create a new bill and render Bills page', async () => {
+            const postSpy = jest.spyOn(firebase, 'post');
+            const newBill = {
+                id: "QcCK3SzECmaZAGRrHjaC",
+                status: "refused",
+                pct: 20,
+                amount: 200,
+                email: "a@a",
+                name: "test2",
+                vat: "40",
+                fileName: "preview-facture-free-201801-pdf-1.jpg",
+                date: "2002-02-02",
+                commentAdmin: "pas la bonne facture",
+                commentary: "test2",
+                type: "Restaurants et bars",
+                fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
+            };
 
-      const newBill = {
-        id: "QcCK3SzECmaZAGRrHjaC",
-        status: "refused",
-        pct: 20,
-        amount: 200,
-        email: "a@a",
-        name: "test2",
-        vat: "40",
-        fileName: "preview-facture-free-201801-pdf-1.jpg",
-        date: "2002-02-02",
-        commentAdmin: "pas la bonne facture",
-        commentary: "test2",
-        type: "Restaurants et bars",
-        fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
-      }
+            const bills = await firebase.post(newBill);
 
-      //mock handlesubmit
-      // expect havebenncalled
+            expect(postSpy).toHaveBeenCalledTimes(1);
+            expect(bills.data.length).toBe(5);
 
-      const bills = await Firebase.post(newBill)
+        });
 
-      expect(postSpy).toHaveBeenCalledTimes(1)
-      expect(bills.data.length).toBe(5)
-    })
+        test('Then it adds bill to the API and fails with 404 message error', async () => {
+            firebase.post.mockImplementationOnce(() =>
+                Promise.reject(new Error('Erreur 404'))
+            );
+            const html = BillsUI({ error: 'Erreur 404' });
+            document.body.innerHTML = html;
+            const message = await screen.getByText(/Erreur 404/);
 
-// moyen
-    test("POST a newBill and fails with 500 message error", async () => {
-      Firebase.post.mockImplementationOnce(() =>
-          Promise.reject(new Error("Erreur 500"))
-      )
-      const html = NewBillUI({ error: "Erreur 500" })
-      document.body.innerHTML = html
-      const message = await screen.getByText(/Erreur 500/)
-      expect(message).toBeTruthy()
-    })
+            expect(message).toBeTruthy();
+        });
 
-  })
+        test('Then it adds bill to the API and fails with 500 message error', async () => {
+            firebase.post.mockImplementationOnce(() =>
+                Promise.reject(new Error('Erreur 500'))
+            );
+            const html = BillsUI({ error: 'Erreur 500' });
+            document.body.innerHTML = html;
+            const message = await screen.getByText(/Erreur 500/);
+
+            expect(message).toBeTruthy();
+        });
+    });
 
 
 })
