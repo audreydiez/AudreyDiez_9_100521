@@ -1,15 +1,23 @@
-
 import {screen} from "@testing-library/dom"
+import userEvent from "@testing-library/user-event";
 import firebase from "../__mocks__/firebase";
 import {setSessionStorage} from "../../setup-jest";
 
 import Router from "../app/Router.js"
+import Firestore from "../app/Firestore";
+
+import { bills } from "../fixtures/bills.js"
 import {ROUTES, ROUTES_PATH} from "../constants/routes";
 import Bills from "../containers/Bills"
 import BillsUI from "../views/BillsUI.js"
-import { bills } from "../fixtures/bills.js"
-import Firestore from "../app/Firestore";
-import userEvent from "@testing-library/user-event";
+
+// Session storage - Employee
+setSessionStorage('Employee')
+
+// Init onNavigate
+const onNavigate = (pathname) => {
+  document.body.innerHTML = ROUTES({ pathname });
+};
 
 
 describe("Given I am connected as an employee", () => {
@@ -23,9 +31,6 @@ describe("Given I am connected as an employee", () => {
       jest.mock("../app/Firestore");
       Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() });
 
-      // Session storage - Employee
-      setSessionStorage('Employee')
-
       // HTML DOM creation - DIV
       Object.defineProperty(window, "location", { value: { hash: pathname } });
       document.body.innerHTML = `<div id="root"></div>`;
@@ -35,9 +40,8 @@ describe("Given I am connected as an employee", () => {
 
       expect(screen.getByTestId("icon-window")).toBeTruthy()
       expect(screen.getByTestId("icon-window").classList.contains("active-icon")).toBeTruthy()
-
-
     })
+
     test("Then bills should be ordered from earliest to latest", () => {
 
       // UI Construction
@@ -54,21 +58,13 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
 })
+
   describe("When I click on the button 'Nouvelle note de frais'", () => {
     test("Then I should navigate to bill/new", () => {
-
-      // Session storage - Employee
-      setSessionStorage('Employee')
 
       // UI Construction
       const html = BillsUI({ data: bills })
       document.body.innerHTML = html
-
-      // Init onNavigate
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-
 
       // init Bills for icon eye display
       const newBills = new Bills({
@@ -97,18 +93,9 @@ describe("Given I am connected as an employee", () => {
   describe("When I click on the eye icon", () => {
     test("A modal should open", () => {
 
-
-      // Session storage - Employee
-      setSessionStorage('Employee')
-
       // UI Construction
       const html = BillsUI({ data: bills });
       document.body.innerHTML = html;
-
-      // Init onNavigate
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
 
       // Init firestore
       const firestore = null;
@@ -126,7 +113,6 @@ describe("Given I am connected as an employee", () => {
 
       // Get button eye in DOM
       const eye = screen.getAllByTestId("icon-eye")[0];
-
 
       // Mock function handleClickIconEye
       const handleClickIconEye = jest.fn(() =>
@@ -147,17 +133,28 @@ describe("Given I am connected as an employee", () => {
   // Integration tests GET
   describe("When I navigate to Bills UI", () => {
     test("fetches bills from mock API GET", async () => {
+
+      // Spy on Firebase Mock
       const getSpy = jest.spyOn(firebase, "get")
+
+      // Get bills and the new bill
       const bills = await firebase.get()
+
       expect(getSpy).toHaveBeenCalledTimes(1)
       expect(bills.data.length).toBe(4)
     })
     test("fetches bills from an API and fails with 404 message error", async () => {
+
+      // Override firebase mock for single use for throw error
       firebase.get.mockImplementationOnce(() =>
           Promise.reject(new Error("Erreur 404"))
       )
+
+      // UI creation with error code
       const html = BillsUI({ error: "Erreur 404" })
       document.body.innerHTML = html
+
+      // Await for response
       const message = await screen.getByText(/Erreur 404/)
       expect(message).toBeTruthy()
     })
