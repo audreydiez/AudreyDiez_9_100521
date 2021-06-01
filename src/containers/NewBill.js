@@ -28,7 +28,7 @@ export default class NewBill {
       const filePath = e.target.value.split(/\\/g)
       const fileName = filePath[filePath.length-1]
 
-
+      if (this.firestore) {
         this.firestore
             .storage
             .ref(`justificatifs/${fileName}`)
@@ -38,6 +38,7 @@ export default class NewBill {
               this.fileUrl = url
               this.fileName = fileName
             })
+      }
 
     }
     else{
@@ -67,6 +68,7 @@ export default class NewBill {
         fileName: this.fileName,
         status: 'pending'
       }
+
       this.createBill(bill)
       this.onNavigate(ROUTES_PATH['Bills'])
 
