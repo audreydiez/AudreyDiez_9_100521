@@ -210,7 +210,23 @@ describe("Given I am connected as an employee", () => {
 
   // NewBill submition Tests
   describe('When bill form is submited', () => {
-    test('then create Bill and redirect to Bills', async () => {
+
+      // Test for dive into createBill
+      test('then add new bill', async () => {
+          const html = NewBillUI()
+          document.body.innerHTML = html
+
+          const bill = new NewBill({
+              document,
+              onNavigate,
+              firestore: null,
+              localStorage: window.localStorage,
+          })
+          expect(await bill.createBill(newBill)).toBeUndefined()
+
+      })
+
+          test('then create Bill and redirect to Bills', async () => {
             const onNavigate = (pathname) => { document.body.innerHTML = pathname }
 
             const html = NewBillUI()
