@@ -78,7 +78,6 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage,
       });
 
-
       // Mock handleClickNewBill
       const handleClickNewBill = jest.fn(newBills.handleClickNewBill);
 
@@ -88,6 +87,7 @@ describe("Given I am connected as an employee", () => {
       // Add event and fire
       newBillButton.addEventListener("click", handleClickNewBill);
       userEvent.click(newBillButton);
+
 
       expect(handleClickNewBill).toHaveBeenCalled();
       expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
