@@ -39,7 +39,6 @@ const newBill = {
 
 
 
-
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     test("Then letter icon in vertical layout should be highlighted", () => {
@@ -161,22 +160,6 @@ describe("Given I am connected as an employee", () => {
 
             // Spy on Firebase Mock
             const postSpy = jest.spyOn(firebase, 'post');
-
-            const newBill = {
-                id: "QcCK3SzECmaZAGRrHjaC",
-                status: "refused",
-                pct: 20,
-                amount: 200,
-                email: "a@a",
-                name: "test2",
-                vat: "40",
-                fileName: "preview-facture-free-201801-pdf-1.jpg",
-                date: "2002-02-02",
-                commentAdmin: "pas la bonne facture",
-                commentary: "test2",
-                type: "Restaurants et bars",
-                fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
-            };
 
             const bills = await firebase.post(newBill);
 
